@@ -7,6 +7,7 @@
   - [ログの確認](#ログの確認)
   - [トラブルシューティング](#トラブルシューティング)
   - [注意事項](#注意事項)
+- [作者メモ](#作者メモ)
   
 ## セットアップ手順
 
@@ -40,9 +41,9 @@
    Description=Hardware Log for Raspberry Pi 5
    After=network.target
 
-   # write your install path
+   # Write your install path. Note: Relative paths are not supported, use absolute paths.
    [Service]
-   ExecStart=.venv/bin/python logging.py
+   ExecStart=<INSTALL_PATH>/.venv/bin/python <INSTALL_PATH>/logging.py
    WorkingDirectory=<INSTALL_PATH>
    StandardOutput=inherit
    StandardError=inherit
@@ -99,3 +100,6 @@ sudo journalctl -u hardwarelog.service
 
 - このサービスは1分ごとにログを記録します。頻度を変更する場合は、タイマーファイルの `OnUnitActiveSec` の値を調整してください。
 - ログファイルのサイズが大きくなりすぎないよう、定期的に確認し、必要に応じてローテーションを設定してください。
+
+# 作者メモ
+動作が遅い・・・1分間隔で動作させてるのにログには1分10秒くらいの感覚で記録される・・・csvファイルの作りやすさ、cpu周波数の取得等の簡易さの都合でpyton使ったけど、とにかく遅い。ラズパイに用意されてるコマンドで組みなおすかも。

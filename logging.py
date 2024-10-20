@@ -1,7 +1,6 @@
 import csv
 import time
 import psutil
-import subprocess
 import os
 
 def get_cpu_temperature():
@@ -28,14 +27,11 @@ def log_system_info():
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
     cpu_temp = get_cpu_temperature()
     cpu_freq = get_cpu_frequency()
-    cpu_usage = psutil.cpu_percent()
+    cpu_usage = psutil.cpu_percent(interval=1)  # 1秒間のCPU使用率を測定
     memory_usage = psutil.virtual_memory().percent
     fan_speed = get_fan_speed()
 
-    if cpu_temp is not None:
-        cpu_temp_str = f"{cpu_temp:.1f}"
-    else:
-        cpu_temp_str = "N/A"
+    cpu_temp_str = f"{cpu_temp:.1f}" if cpu_temp is not None else "N/A"
 
     log_entry = [
         timestamp,
@@ -46,16 +42,14 @@ def log_system_info():
         f"{fan_speed}"
     ]
 
-    with open("system_log.csv", "a", newline='') as log_file:
+    log_file_path = os.path.join(os.path.dirname(__file__), "system_log.csv")
+    file_exists = os.path.exists(log_file_path)
+
+    with open(log_file_path, "a", newline='') as log_file:
         csv_writer = csv.writer(log_file)
+        if not file_exists:
+            csv_writer.writerow(["Timestamp", "Temperature[degC]", "CPU_Frequency[MHz]", "CPU_Usage[%]", "Memory_Usage[%]", "Fan_Speed[RPM]"])
         csv_writer.writerow(log_entry)
 
-# CSVヘッダーの書き込み（初回のみ）
-if not os.path.exists("system_log.csv"):
-    with open("system_log.csv", "w", newline='') as log_file:
-        csv_writer = csv.writer(log_file)
-        csv_writer.writerow(["Timestamp", "Temperature[degC]", "CPU_Frequency[MHz]", "CPU_Usage[%]", "Memory_Usage[%]", "Fan_Speed[RPM]"])
-
-while True:
+if __name__ == "__main__":
     log_system_info()
-    time.sleep(10)
